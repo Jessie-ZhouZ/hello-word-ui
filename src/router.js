@@ -2,6 +2,8 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import LoginIn from './components/LoginIn.vue';
 import HomePage from './components/HomePage.vue';
+import WelcomePage from './components/WelcomePage.vue';
+import UsersPage from './components/user/UsersPage.vue';
 
 Vue.use(Router);
 
@@ -9,7 +11,18 @@ const router = new Router({
   routes: [
     { path: '/', redirect: '/login' },
     { path: '/login', component: LoginIn },
-    { path: '/home', component: HomePage },
+    {
+      path: '/home',
+      component: HomePage,
+      redirect: '/welcome',
+      children: [
+        { path: '/welcome', component: WelcomePage },
+        { path: '/users', component: UsersPage },
+        { path: '/roles', component: UsersPage },
+        { path: '/rights', component: UsersPage },
+        { path: '/users', component: UsersPage },
+      ],
+    },
   ],
 });
 
