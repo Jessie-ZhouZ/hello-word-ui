@@ -59,6 +59,7 @@
               type="danger"
               icon="el-icon-delete"
               size="mini"
+              @click="showDeleteDialog(scope.row.id)"
             ></el-button>
             <el-tooltip
               effect="dark"
@@ -282,6 +283,22 @@ export default {
         this.getUserList()
         this.$message.success('更新用户信息成功')
       })
+    },
+    async showDeleteDialog(id) {
+      const confirmResult = await this.$confirm(
+        '此操作将永久删除该用户, 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      ).catch((error) => error)
+      if (confirmResult !== 'confirm') return this.$message.info('已取消删除')
+      const { data: res } = await this.$http.delete(`users/${id}`)
+      if (res.meta.status !== 200) return this.$message.error('删除用户失败')
+      this.$message.success('删除用户成功')
+      this.getUserList()
     },
   },
 }

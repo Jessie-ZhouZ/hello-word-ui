@@ -23,6 +23,7 @@ import {
   Tooltip,
   Pagination,
   Dialog,
+  MessageBox,
 } from 'element-ui';
 Vue.use(Button);
 Vue.use(Form);
@@ -48,3 +49,4 @@ Vue.use(Pagination);
 Vue.use(Dialog);
 // Message需要全局挂载在vue的原型组件上，就可以通过this.$message访问
 Vue.prototype.$message = Message;
+Vue.prototype.$confirm = MessageBox.confirm;
