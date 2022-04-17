@@ -48,11 +48,12 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180px">
-          <template>
+          <template slot-scope="scope">
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
+              @click="showEiditDialog(scope.row.id)"
             ></el-button>
             <el-button
               type="danger"
@@ -113,6 +114,29 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="isUserDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="handleAddUser">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 修改用户的对话框 -->
+    <el-dialog title="修改用户" :visible.sync="isEditDialogVisible" width="50%">
+      <el-form
+        :model="editUserForm"
+        :rules="editUserFormRules"
+        ref="editUserFormRef"
+        label-width="70px"
+        @close="editDialogClosed"
+      >
+        <el-form-item label="用户名">
+          <el-input v-model="editUserForm.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editUserForm.email"></el-input> </el-form-item
+        ><el-form-item label="手机" prop="mobile">
+          <el-input v-model="editUserForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="isEditDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleEditUserInfo">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -177,6 +201,18 @@ export default {
           { validator: checkMobile, trigger: 'blur' },
         ],
       },
+      isEditDialogVisible: false,
+      editUserForm: {},
+      editUserFormRules: {
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' },
+        ],
+        mobile: [
+          { required: true, message: '请输入手机', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' },
+        ],
+      },
     }
   },
   created() {
@@ -221,6 +257,30 @@ export default {
         this.$message.success('添加用户成功')
         this.isUserDialogVisible = false
         this.getUserList()
+      })
+    },
+    async showEiditDialog(id) {
+      const { data: res } = await this.$http.get(`users/${id}`)
+      if (res.meta.status !== 200)
+        return this.$message.error('查询用户信息失败')
+      this.editUserForm = res.data
+      this.isEditDialogVisible = true
+    },
+    editDialogClosed() {
+      this.$refs.editUserFormRef.resetFields()
+    },
+    handleEditUserInfo() {
+      this.$refs.editUserFormRef.validate(async (valid) => {
+        if (!valid) return
+        const { data: res } = await this.$http.put(
+          `users/${this.editUserForm.id}`,
+          { email: this.editUserForm.email, mobile: this.editUserForm.mobile }
+        )
+        if (res.meta.status !== 200)
+          return this.$message.error('更新用户信息失败')
+        this.isEditDialogVisible = false
+        this.getUserList()
+        this.$message.success('更新用户信息成功')
       })
     },
   },
